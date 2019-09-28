@@ -1,0 +1,89 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+```{r,warnings=FALSE}
+#Importing the libraries and data 
+library(fpp2)
+library(tidyverse)
+#Data is about different kinds of peanut butter 
+Creamy=read.csv("Creamy.csv")[,-1]
+Crunchy=read.csv("Crunchy.csv")[,-1]
+```
+
+
+```{r}
+#Taking the log transform of the data to have them both in the same scale. 
+L.pX <- log(Creamy[,"PPOZ"])
+L.yX <- log(Creamy[,"T.VOL"])
+#Linear model of the log transformed data 
+IE.X <- lm(L.yX ~ L.pX)
+summary(IE.X)
+
+#The slope of the demand curve is -1.269. 
+#The R^2 is 51%. 
+#The p-value is 0.
+```
+
+```{r}
+#Plotting the model created in the previous chunk. 
+plot(L.pX,L.yX)
+abline(IE.X)
+```
+```{r}
+#Plotting the residuals to see if the linear regression assumptions hold.
+plot(residuals(IE.X))
+abline(0,0)
+```
+```{r}
+#Taking the log transform of the data to have them both in the same scale. 
+L.pY <- log(Crunchy[,"PPOZ"])
+L.yY <- log(Crunchy[,"T.VOL"])
+#Linear model of the log transformed data 
+IE.Y1 <- lm(L.yY~L.pY)
+summary(IE.Y1)
+
+#The slope of the demand curve is -1.6746. 
+#The R^2 is 52%. 
+#The p-value is 0.
+```
+```{r}
+#Plotting the model created in the previous chunk. 
+plot(L.pY,L.yY)
+abline(IE.Y1)
+```
+```{r}
+#Plotting the residuals to see if the linear regression assumptions hold.
+plot(residuals(IE.Y1))
+abline(0,0)
+```
+
+```{r}
+#Finding the elasticities for each product 
+confint(IE.X) #Elasticities Creamy
+confint(IE.Y1) #Elasticities Crunchy
+
+#The elasticities are not significantly different for each product. The elasitcity is the slope of the product which the confidence interval gives us. The confidence interval for both products have a difference of about 30% which is not very significant. 
+```
+
+```{r}
+#Creating and plotting the demand curves for both products
+NDF <- data.frame(L.pX = log(seq(0.1250, 0.220, length=50)),
+                  L.pY = log(seq(0.1250, 0.220, length=50)))
+DF <- data.frame(Price  = seq(0.1250, 0.220, length=50),
+                 F.DemX = exp(predict(IE.X, newdata=NDF)),
+                 F.DemY = exp(predict(IE.Y1, newdata=NDF)))
+
+ggplot() +
+  geom_point(data = Creamy, mapping = aes(x = PPOZ , y = T.VOL), shape = 1, color = "orange") +
+  geom_line(data = DF, mapping = aes(x = Price, y = F.DemX), color = "orange", lwd = 1) +
+  geom_point(data = Crunchy, mapping = aes(x = PPOZ , y = T.VOL), shape = 1, color = "orange") +
+  geom_line(data = DF, mapping = aes(x = Price, y = F.DemY), color = "blue", lwd = 1) +
+  xlab("Price of Product ($/oz)") +
+  ylab("Sales of Product (oz)") +
+  ggtitle("Isoelastic Demand Curve for Creamy and Crunchy")
+
+```
+
+
