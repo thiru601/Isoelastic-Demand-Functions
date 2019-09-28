@@ -11,3 +11,4 @@ T.DLS: Total sales in Dollars
 
 PPOZ: Price in Dollars per once corresponding to the week’s data. This is just T.DLS/(18xT.VOL).
 
+![DemandCurves](DemandCurves.png)
